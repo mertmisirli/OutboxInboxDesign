@@ -1,5 +1,5 @@
 ﻿using MassTransit;
-using Order.API.Models.Entities;
+using Order.Outbox.Table.Publisher.Service.Entities;
 using Quartz;
 using Shared.Events;
 using System;
@@ -26,7 +26,11 @@ namespace Order.Outbox.Table.Publisher.Service.Jobs
             {
                 OrderOutboxSingletonDatabase.DataReaderBusy();
 
-                List<OrderOutbox> orderOutboxes = (await OrderOutboxSingletonDatabase.QueryAsync<OrderOutbox>($@"SELECT * FROM ORDEROUTBOXES WHERE PROCESSEDDATE IS NULL ORDER BY OCCUREDON ASC")).ToList();
+                List<OrderOutbox> orderOutboxes = (await OrderOutboxSingletonDatabase.QueryAsync<OrderOutbox>(@"
+                SELECT * 
+                FROM public.""OrderOutboxes"" 
+                WHERE ""ProcessedDate"" IS NULL 
+                ORDER BY ""OccuredOn"" ASC")).ToList();
 
                 foreach (var orderOutbox in orderOutboxes)
                 {
@@ -36,7 +40,7 @@ namespace Order.Outbox.Table.Publisher.Service.Jobs
                         if (orderCreatedEvent != null)
                         {
                             await publishEndpoint.Publish(orderCreatedEvent);
-                            OrderOutboxSingletonDatabase.ExecuteAsync($"UPDATE ORDEROUTBOXES SET PROCESSEDDATE = GETDATE() WHERE IdempotentToken = '{orderOutbox.Id}'");
+                            OrderOutboxSingletonDatabase.ExecuteAsync($"UPDATE OrderOutboxes SET ProcessedDate = GETDATE() WHERE Id = '{orderOutbox.Id}'");
                         }
                     }
                 }

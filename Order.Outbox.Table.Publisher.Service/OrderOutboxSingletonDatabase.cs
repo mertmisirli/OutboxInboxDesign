@@ -17,7 +17,8 @@ namespace Order.Outbox.Table.Publisher.Service
     {
         static IDbConnection _connection;
         static bool _dataReaderState = true;
-        static OrderOutboxSingletonDatabase()
+        public static string ConnectionString { get; set; }
+        static OrderOutboxSingletonDatabase() 
             => _connection = new NpgsqlConnection("Host=localhost;Port=5432;Database=OrderDB;Username=postgres;Password=mert34");
 
         public static IDbConnection Connection

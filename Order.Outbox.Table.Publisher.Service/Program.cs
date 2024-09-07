@@ -1,8 +1,10 @@
 using MassTransit;
+using Order.Outbox.Table.Publisher.Service;
 using Order.Outbox.Table.Publisher.Service.Jobs;
 using Quartz;
 
 var builder = Host.CreateApplicationBuilder(args);
+
 
 builder.Services.AddMassTransit(configurator =>
 {
